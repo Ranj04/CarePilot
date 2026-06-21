@@ -5,34 +5,37 @@ import Chat from "@/components/Chat";
 import MemoryPanel from "@/components/MemoryPanel";
 import type { MemoryOp } from "@/lib/contract";
 
-// Demo roster shown as tabs. Mirrors the ids seeded by src/lib/seed.ts.
-// "cold" is the intentionally-empty control. Kept here (not imported from
+// Pre-seeded demo roster shown as tabs (each proves a different memory power).
+// Mirrors the ids seeded by src/lib/seed.ts. Kept here (not imported from
 // seed.ts) so this client component doesn't bundle the server-only seeder.
 const PATIENTS = [
-  { id: "maya", label: "Maya", beat: "BP meds" },
-  { id: "walter", label: "Walter", beat: "interaction" },
-  { id: "sam", label: "Sam", beat: "recurrence" },
+  { id: "maya", label: "Maya", beat: "BP meds → dry cough" },
+  { id: "walter", label: "Walter", beat: "drug interaction" },
+  { id: "sam", label: "Sam", beat: "symptom recurrence" },
   { id: "jordan", label: "Jordan", beat: "mood trend" },
-  { id: "aisha", label: "Aisha", beat: "asthma" },
-  { id: "diego", label: "Diego", beat: "allergy" },
-  { id: "cold", label: "New", beat: "no memory" },
+  { id: "aisha", label: "Aisha", beat: "asthma context" },
+  { id: "diego", label: "Diego", beat: "allergy safety" },
 ] as const;
 
-type PatientId = (typeof PATIENTS)[number]["id"];
-
 export default function Home() {
-  const [patientId, setPatientId] = useState<PatientId>("maya");
+  const [patientId, setPatientId] = useState<string>("maya");
   const [ops, setOps] = useState<MemoryOp[]>([]);
   const [ready, setReady] = useState(false);
   const [resetKey, setResetKey] = useState(0);
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
+  const [nameInput, setNameInput] = useState("");
   const seeded = useRef<Set<string>>(new Set());
 
-  // Auto-seed the selected patient (once per session) before chatting, so
-  // their memory exists in HydraDB. "cold" is never seeded.
+  const isCustom = !PATIENTS.some((p) => p.id === patientId);
+
+  // Auto-seed a roster patient (once per session) before chatting, so their
+  // memory exists in HydraDB. Custom "new" patients are created via /api/init
+  // in startNewSession instead — they start cold and build memory live.
   useEffect(() => {
     let cancelled = false;
+    const isRoster = PATIENTS.some((p) => p.id === patientId);
 
-    if (patientId === "cold" || seeded.current.has(patientId)) {
+    if (!isRoster || seeded.current.has(patientId)) {
       setReady(true);
       return;
     }
@@ -47,7 +50,7 @@ export default function Home() {
         });
         seeded.current.add(patientId);
       } catch {
-        // If seeding fails, still let them chat — recall will just come back empty.
+        // If seeding fails, still let them chat — recall just comes back empty.
       } finally {
         if (!cancelled) setReady(true);
       }
@@ -58,10 +61,32 @@ export default function Home() {
     };
   }, [patientId]);
 
-  function switchPatient(id: PatientId) {
+  function switchPatient(id: string) {
     if (id === patientId) return;
     setPatientId(id);
     setOps([]); // each patient is a separate session — reset the trace
+  }
+
+  // Create a brand-new, memoryless patient and start a live session for them.
+  async function startNewSession(name: string) {
+    const slug = name.trim().toLowerCase().replace(/\s+/g, "-") || `user-${Date.now()}`;
+    seeded.current.add(slug); // don't run the roster seeder for a custom patient
+    setShowNamePrompt(false);
+    setNameInput("");
+    setOps([]);
+    setReady(false);
+    setPatientId(slug);
+    try {
+      await fetch("/api/init", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ patientId: slug }),
+      });
+    } catch {
+      // init is best-effort; chatting still works (recall just starts empty).
+    } finally {
+      setReady(true);
+    }
   }
 
   // newest turn's ops on top; execution order preserved within a turn
@@ -104,6 +129,14 @@ export default function Home() {
                 {p.label}
               </button>
             ))}
+            <button
+              className="segBtn"
+              onClick={() => setShowNamePrompt(true)}
+              aria-pressed={isCustom}
+              title="Start a brand-new patient with no memory and watch it build live"
+            >
+              {isCustom ? `${patientId} · new` : "+ New"}
+            </button>
           </div>
           <button
             className="resetBtn"
@@ -115,11 +148,54 @@ export default function Home() {
         </div>
       </header>
 
+      {showNamePrompt && (
+        <div
+          className="modalOverlay"
+          role="dialog"
+          aria-modal="true"
+          aria-label="New patient"
+          onClick={() => setShowNamePrompt(false)}
+        >
+          <div className="modalCard" onClick={(e) => e.stopPropagation()}>
+            <p className="modalTitle">Start a new patient</p>
+            <p className="modalHint">
+              They begin with no memory — CarePilot builds it as you chat.
+            </p>
+            <input
+              className="field"
+              autoFocus
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              onKeyDown={(e) =>
+                e.key === "Enter" && nameInput.trim() && startNewSession(nameInput)
+              }
+              placeholder="e.g. Jordan"
+              aria-label="New patient name"
+            />
+            <div className="modalBtns">
+              <button className="resetBtn" onClick={() => setShowNamePrompt(false)}>
+                Cancel
+              </button>
+              <button
+                className="sendBtn"
+                onClick={() => nameInput.trim() && startNewSession(nameInput)}
+              >
+                Start
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="workspace">
         <div className="chatArea">
           {ready ? (
             // key remounts the thread on patient switch or reset — sessions stay separate
-            <Chat key={`${patientId}-${resetKey}`} patientId={patientId} onMemoryOps={addOps} />
+            <Chat
+              key={`${patientId}-${resetKey}`}
+              patientId={patientId}
+              onMemoryOps={addOps}
+            />
           ) : (
             <div className="seeding" role="status" aria-live="polite">
               <div className="seedingDots">
