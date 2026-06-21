@@ -46,6 +46,7 @@ Follow `ARCHITECTURE.md` in this folder. Summary:
 - Three tools in `src/lib/tools.ts`: `recall_context`, `find_related` (graph traversal), `remember` (write nodes + edges).
 - `src/lib/trace.ts`: log every HydraDB op (op, args, result summary, ms) to console AND an in-memory buffer surfaced in a UI panel.
 - `src/lib/seed.ts`: seed patient "Maya" — takes **lisinopril 10mg**, has **hypertension**, and a prior **low mood** entry — with the `Medication —MAY_CAUSE→ "dry cough"` relationship present so the demo's side-effect catch works.
+  - 🔒 **CANONICAL SEED — DO NOT CHANGE.** The hero scenario is **lisinopril → dry cough**, and the demo input is **"I have a dry cough"** (see the hero behavior below + DEMO.md). A past session drifted this to propranolol/dizziness and broke the written demo. If you ever change the meds/conditions/symptoms in `seed.ts`, you MUST update this brief and DEMO.md in the same change so the script and the live agent agree. HydraDB has no delete API, so a clean reseed is done by bumping the namespace suffix in `src/lib/memory.ts` (`subTenant`).
 
 ## The hero behavior to make work
 

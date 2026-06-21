@@ -101,6 +101,19 @@ export default function Chat({ patientId, onMemoryOps }: ChatProps) {
             </div>
           ))
         )}
+        {sending && (
+          <div className="row assistant">
+            <div
+              className="bubble fromAssistant thinking"
+              role="status"
+              aria-label="CarePilot is thinking"
+            >
+              <span className="dot" />
+              <span className="dot" />
+              <span className="dot" />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="composer">
