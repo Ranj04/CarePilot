@@ -1,0 +1,74 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "patient-import-1",
+        "name": [{ "use": "official", "family": "Rivera", "given": ["Maya"] }]
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-htn",
+        "code": {
+          "text": "Hypertension",
+          "coding": [
+            { "system": "http://snomed.info/sct", "code": "38341003", "display": "Essential hypertension" }
+          ]
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "Condition",
+        "id": "cond-dm2",
+        "code": {
+          "coding": [
+            { "system": "http://snomed.info/sct", "code": "44054006", "display": "Type 2 diabetes mellitus" }
+          ]
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationStatement",
+        "id": "med-lisinopril",
+        "status": "active",
+        "medicationCodeableConcept": {
+          "text": "lisinopril 10mg",
+          "coding": [
+            { "system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "314076", "display": "Lisinopril 10 MG Oral Tablet" }
+          ]
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest",
+        "id": "med-metformin",
+        "status": "active",
+        "intent": "order",
+        "medicationCodeableConcept": {
+          "text": "metformin 500mg"
+        }
+      }
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance",
+        "id": "allergy-pcn",
+        "type": "allergy",
+        "criticality": "high",
+        "code": {
+          "text": "Penicillin",
+          "coding": [
+            { "system": "http://snomed.info/sct", "code": "373270004", "display": "Penicillin" }
+          ]
+        }
+      }
+    }
+  ]
+}
