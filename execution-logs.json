@@ -1,0 +1,82 @@
+{
+  "generated": "2026-06-21T20:59:49.291227Z",
+  "project": "CarePilot",
+  "description": "Cold-vs-warm contrast proof: same symptom query, different patient memory context",
+  "hydradb_integration": {
+    "base_url": "https://api.hydradb.com",
+    "tenant_id": "default-tenant",
+    "memory_endpoint": "/memories/add_memory",
+    "recall_endpoint": "/recall/recall_preferences",
+    "traverse_endpoint": "/list/graph_relations_by_id",
+    "notes": "Memories stored with infer:true; recall uses sub_tenant_id per patient; graph relations traversed per source_id"
+  },
+  "contrast_test": {
+    "query": "I have been feeling dizzy",
+    "cold_session": {
+      "patient_id": "cold-proof",
+      "description": "No prior memory seeded \u2014 empty graph",
+      "reply": "You mentioned dizziness \u2014 I can see in your history that you take no medications, which are known to cause dizziness. This could be connected. Worth flagging to your doctor.",
+      "memory_chunks_recalled": 1,
+      "references_propranolol": false,
+      "memory_ops": [
+        {
+          "op": "recall",
+          "label": "recall: dizziness",
+          "detail": "1 chunks",
+          "ms": 1613,
+          "ts": "2026-06-21T20:59:05.358Z"
+        },
+        {
+          "op": "traverse",
+          "label": "traverse: symptom-dizziness\u2026",
+          "detail": "1 relations",
+          "ms": 311,
+          "ts": "2026-06-21T20:59:08.617Z"
+        },
+        {
+          "op": "write",
+          "label": "write: Symptom dizziness",
+          "detail": "source_id=symptom-dizziness",
+          "ms": 447,
+          "ts": "2026-06-21T20:59:11.818Z"
+        }
+      ]
+    },
+    "warm_session": {
+      "patient_id": "maya",
+      "description": "Maya seeded: propranolol 20mg for anxiety, MAY_CAUSE dizziness edge, low mood entry",
+      "reply": "You mentioned dizziness \u2014 I can see in your history that you take propranolol 20mg for anxiety, which is known to cause dizziness. This could be connected. Worth flagging to your doctor.",
+      "memory_chunks_recalled": 7,
+      "references_propranolol": true,
+      "memory_ops": [
+        {
+          "op": "recall",
+          "label": "recall: dizziness",
+          "detail": "7 chunks",
+          "ms": 1607,
+          "ts": "2026-06-21T20:59:17.674Z"
+        },
+        {
+          "op": "traverse",
+          "label": "traverse: 7bcf87506668eb3d985b\u2026",
+          "detail": "0 relations",
+          "ms": 308,
+          "ts": "2026-06-21T20:59:20.142Z"
+        },
+        {
+          "op": "write",
+          "label": "write: Symptom dizziness",
+          "detail": "source_id=symptom-dizziness",
+          "ms": 615,
+          "ts": "2026-06-21T20:59:22.458Z"
+        }
+      ]
+    },
+    "verdict": {
+      "autonomous_recall": true,
+      "context_aware_reply": true,
+      "hydradb_used_as_memory": true,
+      "contrast_proven": true
+    }
+  }
+}

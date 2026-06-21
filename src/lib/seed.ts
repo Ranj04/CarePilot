@@ -10,24 +10,24 @@ export async function seedPatient(patientId: string): Promise<number> {
     },
     {
       kind: "Medication",
-      label: "lisinopril 10mg",
-      text: "Medication: lisinopril 10mg. An ACE inhibitor antihypertensive drug taken daily to control blood pressure.",
-      data: { dose: "10mg", frequency: "daily" },
+      label: "propranolol 20mg",
+      text: "Medication: propranolol 20mg. A beta blocker taken as needed for anxiety and physical symptoms such as racing heart.",
+      data: { dose: "20mg", frequency: "as needed" },
       relations: [
-        { rel: "TREATS", toLabel: "hypertension" },
-        { rel: "MAY_CAUSE", toLabel: "dry cough" },
+        { rel: "TREATS", toLabel: "anxiety" },
+        { rel: "MAY_CAUSE", toLabel: "dizziness" },
       ],
     },
     {
       kind: "Condition",
-      label: "hypertension",
-      text: "Condition: hypertension (high blood pressure). Diagnosed and managed with lisinopril 10mg.",
-      relations: [{ rel: "TREATS", toLabel: "lisinopril 10mg" }],
+      label: "anxiety",
+      text: "Condition: anxiety. Managed partly with propranolol 20mg as needed for physical anxiety symptoms.",
+      relations: [{ rel: "TREATS", toLabel: "propranolol 20mg" }],
     },
     {
       kind: "Symptom",
-      label: "dry cough",
-      text: "Symptom: dry cough. Known side effect of ACE inhibitor medications such as lisinopril. A persistent dry cough can indicate drug-induced cough from lisinopril.",
+      label: "dizziness",
+      text: "Symptom: dizziness and lightheadedness. Previously reported after taking propranolol and skipping breakfast.",
     },
     {
       kind: "MoodEntry",
@@ -39,7 +39,7 @@ export async function seedPatient(patientId: string): Promise<number> {
     {
       kind: "Session",
       label: "seed-session",
-      text: `${patientId} takes lisinopril 10mg daily for hypertension. Lisinopril 10mg may cause dry cough as a known side effect of ACE inhibitors. Patient has history of hypertension condition. Prior mood entry shows low mood in June 2026.`,
+      text: `${patientId} takes propranolol 20mg as needed for anxiety. Propranolol can contribute to dizziness or lightheadedness, especially around low food intake. ${patientId} skipped breakfast twice this week and previously reported dizziness. Prior mood entry shows low mood in June 2026.`,
     },
   ];
 

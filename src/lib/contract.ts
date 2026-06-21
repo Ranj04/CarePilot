@@ -26,6 +26,7 @@ export interface SeedRequest {
 export interface SeedResponse {
   ok: boolean;
   nodeCount: number;
+  error?: string;
 }
 
 // POST /api/chat   -> ChatRequest -> ChatResponse
