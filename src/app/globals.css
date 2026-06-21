@@ -198,6 +198,25 @@ body {
   justify-content: flex-end;
   margin-top: 4px;
 }
+.importSummary {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--pine);
+  background: var(--surface-sunk);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+}
+.importError {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: #9a3a1f;
+  background: var(--coral-soft);
+  border: 1px solid #e6b9a4;
+  border-radius: 10px;
+}
 
 /* ---------- segmented patient toggle ---------- */
 .segment {

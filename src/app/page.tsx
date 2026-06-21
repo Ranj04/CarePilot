@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Chat from "@/components/Chat";
 import MemoryPanel from "@/components/MemoryPanel";
+import ConnectRecordsButton from "@/components/ConnectRecordsButton";
 import type { MemoryOp } from "@/lib/contract";
 
 // Pre-seeded demo roster shown as tabs (each proves a different memory power).
@@ -145,6 +146,8 @@ export default function Home() {
           >
             ↻ Reset
           </button>
+          {/* Renders nothing unless NEXT_PUBLIC_FEATURE_CHART_IMPORT=1 */}
+          <ConnectRecordsButton patientId={patientId} onImported={addOps} />
         </div>
       </header>
 
