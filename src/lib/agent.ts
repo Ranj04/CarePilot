@@ -66,8 +66,15 @@ export async function runAgent(
     messages.push(assistantMsg);
 
     if (choice.finish_reason !== "tool_calls" || !assistantMsg.tool_calls?.length) {
+      const content = assistantMsg.content ?? "";
+      const isInternalLeak = /no further actions|functions were called|required parameters|task (is )?complete|tool calls/i.test(content) || !content.trim();
+      if (isInternalLeak) {
+        messages.push({ role: "user", content: "Please reply directly to the patient in plain, warm English based on what you found." });
+        const forced = await client.chat.completions.create({ model: MODEL, messages, max_tokens: 512, temperature: 0.6 });
+        return { reply: forced.choices[0].message.content ?? "(no reply)", memoryOps: drainOps() };
+      }
       return {
-        reply: assistantMsg.content ?? "(no reply)",
+        reply: content,
         memoryOps: drainOps(),
       };
     }
