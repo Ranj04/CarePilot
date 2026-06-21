@@ -4,7 +4,8 @@ export type NodeKind =
   | "Condition"
   | "Medication"
   | "MoodEntry"
-  | "Session";
+  | "Session"
+  | "Allergy";
 
 export type EdgeRel =
   | "TAKES"
@@ -13,7 +14,10 @@ export type EdgeRel =
   | "MAY_CAUSE"
   | "TREATS"
   | "SUGGESTS"
-  | "RECORDED_IN";
+  | "RECORDED_IN"
+  | "INTERACTS_WITH"
+  | "ALLERGIC_TO"
+  | "CONTRAINDICATES";
 
 export interface MemoryNode {
   nodeId: string;

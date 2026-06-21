@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "demo": "tsx scripts/demo.ts"
   },
   "dependencies": {
     "next": "^15.5.19",
@@ -24,6 +25,7 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^6.0.2",
     "jsdom": "^29.1.1",
+    "tsx": "^4.22.4",
     "typescript": "^5.7.0",
     "vitest": "^4.1.9"
   }

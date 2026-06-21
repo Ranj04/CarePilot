@@ -66,11 +66,54 @@ const OP_META: Record<
 };
 
 export default function MemoryPanel({ ops }: MemoryPanelProps) {
+  // Download this session's memory ops as JSON (the "execution logs" deliverable).
+  function downloadOps() {
+    if (ops.length === 0) return;
+    const blob = new Blob(
+      [JSON.stringify({ exported: new Date().toISOString(), ops }, null, 2)],
+      { type: "application/json" },
+    );
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "carepilot-memory-ops.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <aside className="memory" aria-label="Memory activity">
       <div className="memoryHead">
         <span className="memoryTitle">Memory</span>
-        <span className="memoryCount">{ops.length} ops</span>
+        <div className="memoryHeadRight">
+          <span className="memoryCount">{ops.length} ops</span>
+          <button
+            type="button"
+            className="downloadBtn"
+            onClick={downloadOps}
+            disabled={ops.length === 0}
+            aria-label="Download memory ops as JSON"
+            title="Download memory ops (JSON)"
+          >
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path
+                d="M8 2v8m0 0L5 7m3 3l3-3"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M3 12.5h10"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.3"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {ops.length === 0 ? (

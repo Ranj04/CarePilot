@@ -119,9 +119,47 @@ body {
   animation: breathe 2.4s ease-in-out infinite;
 }
 
+.headerControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.resetBtn {
+  appearance: none;
+  padding: 9px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.resetBtn:hover:not(:disabled) {
+  color: var(--coral);
+  border-color: var(--coral);
+}
+.resetBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.seedStatus {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--pine);
+}
+
 /* ---------- segmented patient toggle ---------- */
 .segment {
   display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   background: var(--surface-sunk);
   border: 1px solid var(--hairline);
   border-radius: 999px;
@@ -172,6 +210,39 @@ body {
 .chatArea {
   min-height: 0;
   min-width: 0;
+}
+
+/* shown while a patient's memory is being seeded into HydraDB */
+.seeding {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+.seedingDots {
+  display: inline-flex;
+  gap: 5px;
+}
+.seeding .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pine);
+  opacity: 0.4;
+  display: inline-block;
+  animation: think 1.2s ease-in-out infinite;
+}
+.seeding .dot:nth-child(2) {
+  animation-delay: 0.18s;
+}
+.seeding .dot:nth-child(3) {
+  animation-delay: 0.36s;
 }
 
 /* ---------- chat card ---------- */
@@ -432,12 +503,39 @@ body {
   font-weight: 600;
   letter-spacing: -0.01em;
 }
+.memoryHeadRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 .memoryCount {
   font-family: var(--font-mono);
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
+}
+.downloadBtn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.downloadBtn:hover:not(:disabled) {
+  color: var(--pine);
+  border-color: var(--pine);
+}
+.downloadBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .memoryEmpty {
