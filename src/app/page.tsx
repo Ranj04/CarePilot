@@ -29,12 +29,17 @@ export default function Home() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ patientId }),
     });
-    const data = (await res.json()) as { ok: boolean; nodeCount: number };
-    setSeeded(true);
+    const data = (await res.json()) as { ok: boolean; nodeCount: number; error?: string };
+    setSeeded(data.ok);
     setSeeding(false);
     setMessages((m) => [
       ...m,
-      { role: "assistant", content: `Memory seeded: ${data.nodeCount} nodes written to HydraDB for ${patientId}. (lisinopril, hypertension, past mood entry, side-effect links)` },
+      {
+        role: "assistant",
+        content: data.ok
+          ? `Memory seeded: ${data.nodeCount} nodes written to HydraDB for ${patientId}. (propranolol, anxiety, dizziness, skipped breakfast, mood context)`
+          : `Could not seed HydraDB yet: ${data.error ?? "unknown error"}`,
+      },
     ]);
   }
 
@@ -88,7 +93,7 @@ export default function Home() {
         <div style={{ flex: 1, overflowY: "auto", padding: "16px 20px", display: "flex", flexDirection: "column", gap: 12 }}>
           {messages.length === 0 && (
             <div style={{ color: "#9ca3af", textAlign: "center", marginTop: 60 }}>
-              Seed Maya first, then start chatting. Try: &quot;I have a dry cough&quot;
+              Seed Maya first, then start chatting. Try: &quot;I keep feeling dizzy&quot;
             </div>
           )}
           {messages.map((m, i) => (
