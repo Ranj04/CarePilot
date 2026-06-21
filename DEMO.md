@@ -33,6 +33,11 @@ Each patient auto-seeds on select. All verified working:
 ## Land it
 "Three things the brief asked for: HydraDB as the memory — every op you just saw was a real read or write. Autonomous recall — the agent chose to look things up, we didn't script it. Context-aware execution — same question, different answer, because of memory. That's an agent that remembers, not one with amnesia."
 
+## Under the hood (if a judge asks about the stack)
+- **HydraDB** — the memory graph. Every node/edge, and every `recall` / `traverse` / `write` in the panel, is a real HydraDB operation. It's the only canonical store.
+- **Nebius Token Factory** — the agent's brain. All reasoning and tool-calling run on **`meta-llama/Llama-3.3-70B-Instruct`** via Nebius (OpenAI-compatible API, `src/lib/nebius.ts`). Crucially, *the Nebius model itself decides* to call `recall_context` / `find_related` / `remember` each turn — that's what makes the recall **autonomous**, not hardcoded. The visible tool calls in the Memory panel are the model's own choices.
+- **Next.js + TypeScript** — single app; browser Web Speech API for optional voice (no extra keys).
+
 ## Demo safety
 - **Pre-seed before you present; never seed live.** Open each patient you plan to show once beforehand so HydraDB has indexed their memory (there's a ~10–15s indexing lag after seeding).
 - The hero pair (**New → Maya**) is the fallback — `npm run demo` prints the cold-vs-warm transcript if the live network flakes.
