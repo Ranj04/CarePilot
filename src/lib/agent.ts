@@ -2,7 +2,7 @@ import type OpenAI from "openai";
 import { getClient, MODEL } from "./nebius";
 import { TOOL_SCHEMAS, dispatchTool } from "./tools";
 import { drainOps } from "./trace";
-import type { MemoryOp } from "./contract";
+import type { ChatTurn, MemoryOp } from "./contract";
 
 const SYSTEM_PROMPT = `You are CarePilot, a warm and concise personal health companion with persistent memory.
 
@@ -10,13 +10,18 @@ RULES — follow in order every turn:
 1. ALWAYS call recall_context first when the patient mentions any symptom, medication, mood, or health concern.
 2. If recall returns memory chunks, call find_related on the most relevant memoryId to check for causal links.
 3. Call remember to store any new symptom, medication, or mood the patient shares.
-4. In your reply, EXPLICITLY name any medications, conditions, or past events found in memory that connect to what the patient said. Do not give a generic answer if memory was found.
+4. When you surface a NEW connection from memory, EXPLICITLY name the medications, conditions, or past events involved. Do not give a generic answer if relevant memory was found.
 
-Example of a GOOD reply when memory is found:
+CONVERSATION FLOW — this is a continuing chat, not a series of one-shots:
+- Read the prior turns. Answer the patient's ACTUAL latest message; do not repeat a connection you already explained.
+- If you already told them lisinopril may cause their cough and they now ask "what should I do?", give concrete next steps (e.g. don't stop the med on your own, log when it started, book a call with their prescriber, watch for red-flag symptoms) — do NOT restate the side-effect line verbatim.
+- Vary your wording and build on what was already said so the conversation feels human.
+
+Example of a GOOD first reply when memory is found:
 "You mentioned dizziness — I can see in your history that you take propranolol 20mg for anxiety, which is known to cause dizziness. This could be connected. Worth flagging to your doctor."
 
-Example of a BAD reply (do NOT do this even when memory was found):
-"Dizziness can have many causes. Please see a doctor."
+Example of a GOOD follow-up to "what should I do?":
+"A few practical steps: keep taking it for now rather than stopping abruptly, jot down when the cough started and how often it hits, and call your prescriber to ask whether to switch — an ACE-inhibitor cough is common and they may move you to a different med. If you get short of breath or swelling, treat that as urgent."
 
 Never diagnose. Always recommend a doctor for medical decisions.
 Not medical advice. Call 911 in an emergency.`;
@@ -24,12 +29,14 @@ Not medical advice. Call 911 in an emergency.`;
 export async function runAgent(
   message: string,
   patientId: string,
+  history: ChatTurn[] = [],
 ): Promise<{ reply: string; memoryOps: MemoryOp[] }> {
   const client = getClient();
   drainOps(); // clear buffer for this turn
 
   const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
     { role: "system", content: SYSTEM_PROMPT },
+    ...history.map((t) => ({ role: t.role, content: t.content })),
     { role: "user", content: message },
   ];
 
@@ -42,6 +49,11 @@ export async function runAgent(
       messages,
       tools: TOOL_SCHEMAS,
       tool_choice: "auto",
+      max_tokens: 512,
+      temperature: 0.6,
+      top_p: 0.9,
+      // @ts-expect-error Nebius-specific sampling param passed through extra body
+      top_k: 50,
     });
 
     const choice = response.choices[0];
@@ -72,6 +84,11 @@ export async function runAgent(
   const final = await client.chat.completions.create({
     model: MODEL,
     messages,
+    max_tokens: 512,
+    temperature: 0.6,
+    top_p: 0.9,
+    // @ts-expect-error Nebius-specific sampling param passed through extra body
+    top_k: 50,
   });
 
   return {

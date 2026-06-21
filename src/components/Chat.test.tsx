@@ -45,10 +45,10 @@ describe("Chat (B0)", () => {
     // posted the contract-shaped request to /api/chat
     const [url, init] = fetchSpy.mock.calls[0];
     expect(url).toBe("/api/chat");
-    expect(JSON.parse((init as RequestInit).body as string)).toEqual({
-      patientId: "maya",
-      message: "I have a dry cough",
-    });
+    const body = JSON.parse((init as RequestInit).body as string);
+    expect(body.patientId).toBe("maya");
+    expect(body.message).toBe("I have a dry cough");
+    expect(Array.isArray(body.history)).toBe(true); // conversation history per contract
   });
 
   it("forwards memoryOps to the onMemoryOps callback (B1 wiring)", async () => {

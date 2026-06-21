@@ -345,6 +345,54 @@ body {
   box-shadow: none;
 }
 
+/* ---------- voice controls ---------- */
+.voiceToggle,
+.micBtn {
+  appearance: none;
+  flex-shrink: 0;
+  width: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  background: var(--paper);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+.voiceToggle:hover,
+.micBtn:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: var(--pine);
+}
+.voiceToggle.on {
+  color: #f5efe2;
+  background: var(--pine);
+  border-color: var(--pine);
+}
+.micBtn:disabled {
+  color: var(--hairline);
+  cursor: not-allowed;
+}
+.micBtn.listening {
+  color: #f5efe2;
+  background: var(--coral);
+  border-color: var(--coral);
+  animation: breathe 1.6s ease-in-out infinite;
+}
+
+.voiceMsg {
+  margin: 0;
+  padding: 8px 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--coral);
+  background: var(--coral-soft);
+  border-top: 1px solid var(--hairline);
+}
+
 /* ---------- disclaimer ---------- */
 .disclaimer {
   text-align: center;

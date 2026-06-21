@@ -1,9 +1,17 @@
 // src/lib/contract.ts — owned by Track A, imported by Track B (never edited by B).
 // The single shared contract between the agent backend and the UI.
 
+export interface ChatTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export interface ChatRequest {
   patientId: string;
   message: string;
+  // Prior turns of this conversation, oldest first. Lets the agent answer
+  // follow-ups ("what should I do?") in context instead of restarting cold.
+  history?: ChatTurn[];
 }
 
 export interface MemoryOp {

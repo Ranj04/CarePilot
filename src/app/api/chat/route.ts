@@ -6,9 +6,10 @@ export async function POST(req: Request): Promise<NextResponse<ChatResponse>> {
   const body = (await req.json()) as Partial<ChatRequest>;
   const message = body.message ?? "";
   const patientId = body.patientId ?? "maya";
+  const history = body.history ?? [];
 
   try {
-    const { reply, memoryOps } = await runAgent(message, patientId);
+    const { reply, memoryOps } = await runAgent(message, patientId, history);
     return NextResponse.json({ reply, memoryOps });
   } catch (error) {
     const detail = error instanceof Error ? error.message : "Unknown error";
