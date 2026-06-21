@@ -1,15 +1,47 @@
-// PHASE A0 PLACEHOLDER — owned by Track B (frontend).
-// Track A only created this so the app boots. Track B replaces it with the chat UI.
+"use client";
+
+import { useState } from "react";
+import Chat from "@/components/Chat";
+
+type PatientId = "maya" | "cold";
+
 export default function Home() {
+  const [patientId, setPatientId] = useState<PatientId>("maya");
+
   return (
-    <main style={{ fontFamily: "system-ui", padding: 40, maxWidth: 640 }}>
-      <h1>CarePilot</h1>
-      <p>Backend scaffold is live. Chat UI is owned by Track B.</p>
-      <p style={{ color: "#666", fontSize: 14 }}>
-        Mock API: <code>POST /api/chat</code>, <code>POST /api/seed</code>
-      </p>
-      <p style={{ color: "#999", fontSize: 12 }}>
-        Not medical advice. Call 911 in an emergency.
+    <main className="shell">
+      <header className="appHeader">
+        <div className="brand">
+          <h1 className="wordmark">
+            Care<em>Pilot</em>
+          </h1>
+          <p className="tagline">
+            <span className="pulse" aria-hidden="true" />
+            Remembers across sessions
+          </p>
+        </div>
+
+        <div className="segment" role="group" aria-label="Patient">
+          {(["maya", "cold"] as PatientId[]).map((id) => (
+            <button
+              key={id}
+              className="segBtn"
+              onClick={() => setPatientId(id)}
+              aria-pressed={patientId === id}
+            >
+              {id === "maya" ? "Maya · seeded" : "Cold · new"}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      <div className="chatArea">
+        {/* key remounts the thread when switching patients — cold vs warm stay separate */}
+        <Chat key={patientId} patientId={patientId} />
+      </div>
+
+      <p className="disclaimer">
+        Not medical advice — call 911 in an emergency.
       </p>
     </main>
   );
