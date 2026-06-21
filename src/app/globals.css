@@ -13,6 +13,7 @@
   --pine-glow: rgba(21, 105, 91, 0.16);
   --coral: #db5a37;
   --coral-soft: #f0e0d2;
+  --amber: #b67c1f;
 
   --font-display: var(--f-fraunces), Georgia, serif;
   --font-sans: var(--f-hanken), -apple-system, sans-serif;
@@ -57,7 +58,7 @@ body {
 
 /* ---------- layout shell ---------- */
 .shell {
-  max-width: 760px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 32px 22px 22px;
   min-height: 100vh;
@@ -151,13 +152,29 @@ body {
   box-shadow: 0 2px 8px -2px var(--pine-deep);
 }
 
-/* ---------- chat card ---------- */
-.chatArea {
+/* ---------- workspace: chat + memory panel ---------- */
+.workspace {
   flex: 1;
   min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 18px;
   opacity: 0;
   animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) 0.18s forwards;
 }
+
+@media (max-width: 880px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chatArea {
+  min-height: 0;
+  min-width: 0;
+}
+
+/* ---------- chat card ---------- */
 
 .chat {
   display: flex;
@@ -307,11 +324,141 @@ body {
   animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s forwards;
 }
 
+/* ---------- memory panel ---------- */
+.memory {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.memoryHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--hairline);
+  background: linear-gradient(180deg, var(--surface), var(--surface-sunk));
+}
+.memoryTitle {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.memoryCount {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.memoryEmpty {
+  margin: auto;
+  padding: 24px;
+  text-align: center;
+  color: var(--muted);
+}
+.memoryEmptyGlyph {
+  display: block;
+  font-size: 30px;
+  color: var(--pine);
+  opacity: 0.55;
+  margin-bottom: 10px;
+}
+.memoryEmpty p {
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.opList {
+  list-style: none;
+  margin: 0;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.opRow {
+  display: flex;
+  gap: 11px;
+  padding: 11px 12px;
+  background: var(--surface-sunk);
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  animation: pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.opIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+}
+
+.opBody {
+  flex: 1;
+  min-width: 0;
+}
+.opTop {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.opKind {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+}
+.opLabel {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.opMs {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted);
+}
+.opDetail {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--ink-soft);
+  /* truncate long detail to 2 lines without breaking layout */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 /* ---------- scrollbar ---------- */
-.thread::-webkit-scrollbar {
+.thread::-webkit-scrollbar,
+.opList::-webkit-scrollbar {
   width: 9px;
 }
-.thread::-webkit-scrollbar-thumb {
+.thread::-webkit-scrollbar-thumb,
+.opList::-webkit-scrollbar-thumb {
   background: var(--hairline);
   border-radius: 9px;
   border: 2px solid var(--surface);
