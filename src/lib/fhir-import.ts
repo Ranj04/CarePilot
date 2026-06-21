@@ -1,7 +1,24 @@
 // Pure FHIR R4 parsing — NO HydraDB, NO network. Maps a small FHIR bundle to
 // the MemoryEvent shapes that memory.ts already consumes. The import endpoint
 // (src/app/api/import-records/route.ts) writes these via the existing path.
-import type { MemoryEvent } from "./types";
+import type { EdgeRel, MemoryEvent } from "./types";
+
+// Minimal clinical knowledge so imported meds/allergies power the SAME graph
+// catches as seeded patients. FHIR itself doesn't encode "may cause" / "avoid"
+// links, but CarePilot's whole premise is that the graph does — so we attach the
+// known MAY_CAUSE / CONTRAINDICATES edges (mirrors src/lib/seed.ts buildEvents).
+const MED_SIDE_EFFECTS: Record<string, string[]> = {
+  lisinopril: ["dry cough"],
+};
+const ALLERGY_CONTRAINDICATIONS: Record<string, string[]> = {
+  penicillin: ["amoxicillin"],
+};
+
+function knownLinks(label: string, map: Record<string, string[]>): string[] {
+  const l = label.toLowerCase();
+  for (const key of Object.keys(map)) if (l.includes(key)) return map[key];
+  return [];
+}
 
 // Minimal FHIR R4 shapes — only the fields we read.
 interface Coding {
@@ -98,16 +115,30 @@ export function parseFhirBundle(bundle: FhirBundle | null | undefined): Imported
       label,
       text: `Condition (imported from connected health records): ${label}.`,
     })),
-    ...medications.map<MemoryEvent>((label) => ({
-      kind: "Medication",
-      label,
-      text: `Medication (imported from connected health records): ${label}. The patient is currently taking this per their chart.`,
-    })),
-    ...allergies.map<MemoryEvent>((label) => ({
-      kind: "Allergy",
-      label,
-      text: `Allergy (imported from connected health records): the patient is allergic to ${label}.`,
-    })),
+    ...medications.map<MemoryEvent>((label) => {
+      const mayCause = knownLinks(label, MED_SIDE_EFFECTS);
+      const note = mayCause.length
+        ? ` A known side effect of ${label} is ${mayCause.join(", ")}.`
+        : "";
+      return {
+        kind: "Medication",
+        label,
+        text: `Medication (imported from connected health records): ${label}. The patient is currently taking this per their chart.${note}`,
+        relations: mayCause.map((s) => ({ rel: "MAY_CAUSE" as EdgeRel, toLabel: s })),
+      };
+    }),
+    ...allergies.map<MemoryEvent>((label) => {
+      const contra = knownLinks(label, ALLERGY_CONTRAINDICATIONS);
+      const note = contra.length
+        ? ` Medications to avoid because of this allergy: ${contra.join(", ")}.`
+        : "";
+      return {
+        kind: "Allergy",
+        label,
+        text: `Allergy (imported from connected health records): the patient is allergic to ${label}.${note}`,
+        relations: contra.map((d) => ({ rel: "CONTRAINDICATES" as EdgeRel, toLabel: d })),
+      };
+    }),
   ];
 
   return { patientName, conditions, medications, allergies, events };

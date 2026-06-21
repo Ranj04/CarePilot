@@ -25,6 +25,19 @@ describe("parseFhirBundle (C0)", () => {
     expect(r.medications).toContain("lisinopril 10mg");
   });
 
+  it("attaches known MAY_CAUSE / CONTRAINDICATES edges so imported data fires the same catches", () => {
+    const r = parseFhirBundle(sampleBundle as FhirBundle);
+    const lisinopril = r.events.find((e) => e.kind === "Medication" && e.label === "lisinopril 10mg");
+    expect(lisinopril?.relations).toEqual([{ rel: "MAY_CAUSE", toLabel: "dry cough" }]);
+
+    const penicillin = r.events.find((e) => e.kind === "Allergy" && e.label === "Penicillin");
+    expect(penicillin?.relations).toEqual([{ rel: "CONTRAINDICATES", toLabel: "amoxicillin" }]);
+
+    // a med with no known links has no spurious edges
+    const metformin = r.events.find((e) => e.kind === "Medication" && e.label === "metformin 500mg");
+    expect(metformin?.relations).toEqual([]);
+  });
+
   it("falls back to coding[].display when code.text is missing", () => {
     const bundle: FhirBundle = {
       resourceType: "Bundle",
