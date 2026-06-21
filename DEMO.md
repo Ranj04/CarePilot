@@ -30,6 +30,17 @@ Each patient auto-seeds on select. All verified working:
 
 > The strongest single bonus for non-technical judges is **Diego** (the allergy catch — obvious stakes). **Walter** is a close second.
 
+## Stretch beat — "Connect your health records" (optional; only if the flag is on)
+
+Behind `NEXT_PUBLIC_FEATURE_CHART_IMPORT=1`. Shows imported records as *another memory source* feeding the same graph.
+
+1. Pick **"+ New"** (a fresh, memoryless patient). Ask *"I have a dry cough."* → generic answer; no history.
+2. Click **"🔗 Connect records"** → Connect (simulated MyChart). It imports conditions, meds (incl. **lisinopril**), and a penicillin allergy — you'll see the `[fhir-import]` writes land in the Memory panel.
+3. Ask *"I have a dry cough."* again → now it fires the **side-effect catch from chart-imported data**: *"…you're on lisinopril, a dry cough is a known ACE-inhibitor side effect…"*
+   - The line: *"Same question — but now it knows your chart, because the import flowed into the same memory graph."*
+
+`npm run demo:import` runs this end-to-end as a fallback.
+
 ## Land it
 "Three things the brief asked for: HydraDB as the memory — every op you just saw was a real read or write. Autonomous recall — the agent chose to look things up, we didn't script it. Context-aware execution — same question, different answer, because of memory. That's an agent that remembers, not one with amnesia."
 
